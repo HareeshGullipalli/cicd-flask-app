@@ -1,13 +1,16 @@
 pipeline {
     agent any
+
     environment {
-        IMAGE_NAME = "yourdockerhubusername/flaskapp"
+        IMAGE_NAME = "flaskapp"
         IMAGE_TAG = "latest"
+        CONTAINER_NAME = "flask-container"
     }
+
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/yourusername/flask-docker-app.git'
+                git 'https://github.com/HareeshGullipalli/cicd-flask-app.git'
             }
         }
 
@@ -17,18 +20,9 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Run New Container') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PWD', usernameVariable: 'DOCKER_USER')]) {
-                    sh 'echo $DOCKER_PWD | docker login -u $DOCKER_USER --password-stdin'
-                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-
-        stage('Deploy with Ansible') {
-            steps {
-                sh 'ansible-playbook -i inventory.yml deploy.yml'
+                sh "docker run -d -p 80:5000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
     }
