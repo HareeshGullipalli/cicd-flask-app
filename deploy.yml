@@ -4,29 +4,10 @@
   become: yes
 
   tasks:
-    - name: Pull Docker image
-      docker_image:
-        name: yourdockerhubusername/flaskapp
-        tag: latest
-        source: pull
-
-    - name: Stop old container
+    - name: Run Flask container from local image
       docker_container:
         name: flaskapp
-        state: stopped
-        force_kill: true
-        ignore_errors: yes
-
-    - name: Remove old container
-      docker_container:
-        name: flaskapp
-        state: absent
-        ignore_errors: yes
-
-    - name: Start new container
-      docker_container:
-        name: flaskapp
-        image: yourdockerhubusername/flaskapp:latest
+        image: flaskapp:latest
         state: started
         restart_policy: always
         published_ports:
